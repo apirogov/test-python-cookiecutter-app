@@ -1,3 +1,6 @@
+name: CI
+description: Run tests and update documentation for the main branches.
+
 on:
   push:
     branches:
