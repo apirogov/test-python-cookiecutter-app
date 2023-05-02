@@ -15,8 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install poetry, poe and pre-commit
-        run: pipx install poetry poethepoet pre-commit
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Install poe and pre-commit
+        run: pip install poethepoet pre-commit
 
       - uses: actions/setup-python@v4
         with:

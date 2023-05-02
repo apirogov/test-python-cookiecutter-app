@@ -55,14 +55,14 @@ jobs:
 
       - name: Generate and deploy documentation
         run: |
-          version="{{ inputs.version }}"
-          if [ -z "$version" ]
+          VERSION="${{ inputs.version }}"
+          if [ -z "${VERSION}" ]
           then
             # use current branch name
-            version=$(echo ${GITHUB_REF#refs/heads/})
+            VERSION=$(echo ${GITHUB_REF#refs/heads/})
           else
             # get branch or tag
             git fetch --all --tags
-            git checkout $version
+            git checkout $VERSION
           # build and deploy docs to gh-pages branch
-          poetry run mike deploy -u --push $version
+          poetry run mike deploy -u --push $VERSION
