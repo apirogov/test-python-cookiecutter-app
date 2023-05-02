@@ -55,7 +55,7 @@ jobs:
 
       - name: Generate and deploy documentation
         run: |
-          VERSION="${{ inputs.version }}"
+          VERSION="{{ inputs.version }}"
           if [ -z "${VERSION}" ]
           then
             # use current branch name
@@ -64,5 +64,6 @@ jobs:
             # get branch or tag
             git fetch --all --tags
             git checkout $VERSION
+          fi
           # build and deploy docs to gh-pages branch
           poetry run mike deploy -u --push $VERSION
