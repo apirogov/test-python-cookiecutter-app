@@ -1,10 +1,5 @@
 on:
 
-  push:
-    branches:
-      - "main"
-      - "dev"
-
   workflow_call:
     inputs:
       version:
@@ -47,15 +42,15 @@ jobs:
             echo "Found existing gh-pages branch."
           else
             echo "Creating new gh-pages branch and initializing mike."
-            git fetch origin {{ inputs.latest }}:{{ inputs.latest }}
-            git checkout {{ inputs.latest }}
-            poetry run mike deploy -u {{ inputs.latest }} latest
+            git fetch origin ${{ inputs.latest }}:${{ inputs.latest }}
+            git checkout ${{ inputs.latest }}
+            poetry run mike deploy -u ${{ inputs.latest }} latest
             poetry run mike set-default latest
           fi
 
       - name: Generate and deploy documentation
         run: |
-          VERSION="{{ inputs.version }}"
+          VERSION="${{ inputs.version }}"
           if [ -z "${VERSION}" ]
           then
             # use current branch name
