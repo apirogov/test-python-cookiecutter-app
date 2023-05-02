@@ -45,7 +45,7 @@ jobs:
           else
             echo "Creating new gh-pages branch and initializing mike."
             git fetch origin ${{ inputs.latest }}:${{ inputs.latest }}
-            git checkout ${{ inputs.latest }}
+            git checkout -b ${{ inputs.latest }}
             poetry run mike deploy -u ${{ inputs.latest }} latest
             poetry run mike set-default latest
           fi
