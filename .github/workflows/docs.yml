@@ -1,5 +1,5 @@
+# Build documentation and deploy it to GH Pages.
 name: Docs
-description: Build documentation and deploy it to GH Pages.
 
 on:
   workflow_call:

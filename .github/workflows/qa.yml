@@ -1,5 +1,5 @@
+# Run linters and tests for secondary branches and PRs.
 name: Tests
-description: Run linters and tests for secondary branches and PRs.
 
 on:
   push:
