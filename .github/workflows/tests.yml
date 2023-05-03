@@ -79,6 +79,7 @@ jobs:
   docs:
     # build + deploy documentation for the primary branches
     needs: [test, test-build-docs]
+    runs-on: ubuntu-latest
     permissions: write-all
     if: |
       ${{
