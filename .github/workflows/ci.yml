@@ -4,10 +4,10 @@ name: CI
 
 on:
   push:
-    branches: ["*"]
+    branches: [main, dev]
     tags: ["v*.*.*"]
   pull_request:
-  workflow_call:
+    types: [opened, reopened, synchronize, ready_for_review]
 
 jobs:
   lint:
@@ -87,7 +87,7 @@ jobs:
     if: |
       ${{
         github.event_name == 'push' && (
-          startswith(github.ref, 'refs/heads/') ||
+          github.ref_name == 'main' || github.ref_name == 'dev' ||
           startswith(github.ref, 'refs/tags/v')
         )
       }}
