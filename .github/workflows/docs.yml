@@ -2,8 +2,6 @@
 name: Docs
 
 on:
-  # deploy docs for main and dev branches automatically
-  # if the test pipeline successfully completed
   workflow_run:
     workflows: [Tests]
     types: [completed]
@@ -24,8 +22,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_call' }}
     permissions: write-all
-
     steps:
       - uses: actions/checkout@v3
 
@@ -73,3 +71,10 @@ jobs:
           fi
           # build and deploy docs to gh-pages branch
           poetry run mike deploy -u --push $VERSION
+
+  docs-ci:
+    # deploy docs for main and dev branches automatically
+    # if the test pipeline successfully completed
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions: write-all
+    uses: ./.github/workflows/docs.yml

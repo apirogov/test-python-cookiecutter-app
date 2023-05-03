@@ -72,4 +72,3 @@ jobs:
         run: |
           poetry install
           poetry run poe test
-
