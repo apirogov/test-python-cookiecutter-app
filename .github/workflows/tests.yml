@@ -35,6 +35,8 @@ jobs:
         run: safety check -r pyproject.toml
 
   test-build-docs:
+    # make sure that documentation is buildable
+    # (better to know that before e.g. a PR is merged)
     needs: lint
     runs-on: ubuntu-latest
     steps:
@@ -52,6 +54,7 @@ jobs:
           poetry run poe docs
 
   test:
+    # run tests with different OS and Python combinations
     needs: lint
     strategy:
       fail-fast: true
@@ -72,3 +75,15 @@ jobs:
         run: |
           poetry install
           poetry run poe test
+
+  docs:
+    # build + deploy documentation for the primary branches
+    if: |
+      ${{
+        github.event_name == 'push' && (
+          github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+        )
+      }}
+    needs: [test, test-build-docs]
+    permissions: write-all
+    uses: ./.github/workflows/docs.yml
