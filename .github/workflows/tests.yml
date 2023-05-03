@@ -11,16 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
       - name: Install poetry
         run: pipx install poetry
-
-      - name: Install poe and pre-commit
-        run: pip install poethepoet pre-commit
-
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: "3.10"
+
+      - name: Install poe, pre-commit and safety
+        run: pip install poethepoet pre-commit safety
 
       # NOTE: using custom cache, to include pre-commit linters + deps
       - uses: actions/cache@v3
@@ -30,9 +28,28 @@ jobs:
             ~/.cache/pip
           key: ${{ hashFiles('.pre-commit-config.yaml') }}-pre-commit
 
-      - name: Check that all linters run without errors
+      - name: Check that all static analysis tools run without errors
+        run: poetry run poe lint --all-files
+
+      - name: Scan dependencies for known vulnerabilities
+        run: safety check -r pyproject.toml
+
+  test-build-docs:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "poetry"
+
+      - name: Check that documentation builds without errors
         run: |
-          poetry run poe lint --all-files
+          poetry install --with docs
+          poetry run poe docs
 
   test:
     needs: lint
@@ -44,24 +61,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-
       - name: Install poetry
         run: pipx install poetry
-
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'poetry'
+          cache: "poetry"
 
       - name: Check that tests complete without errors
         run: |
           poetry install
           poetry run poe test
-      - name: Check that documentation builds without errors
-        run: |
-          poetry install --with docs
-          poetry run poe docs
-      - name: Scan dependencies for known vulnerabilities
-        run: |
-          pipx install safety
-          safety check -r pyproject.toml
+
