@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       to_github:
-        description: "Create a Github Release"
+        description: "Create a Github Release (needs permissions.contents.write)"
         type: boolean
         default: true
 

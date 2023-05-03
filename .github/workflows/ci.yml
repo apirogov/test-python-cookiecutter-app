@@ -1,6 +1,8 @@
 name: CI
-# Perform all QA tasks - run linters, tests, etc.
-# On success, build and deploy documentation
+# Lint --> test doc build -\
+#      \-> test code      ---> deploy docs (*) -> release (**)
+#  (*): only on push of primary branches + release tags
+# (**): only for release tags
 
 on:
   push:
@@ -80,10 +82,11 @@ jobs:
           poetry run poe test
 
   docs:
-    # build + deploy documentation for the primary branches + release tags
+    # build + deploy documentation (only on push event for certain branches+tags)
     needs: [test, test-build-docs]
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: write
     if: ${{ github.event_name == 'push' }}
     steps:
     - uses: actions/checkout@v3
@@ -119,8 +122,9 @@ jobs:
       run: poetry run mike deploy -u --push ${{ github.ref_name }}
 
   publish:
-    # run publishing workflow when a new version tag is pushed
-    # and tests + docs completed successfully
+    # if a version tag is pushed + tests + docs completed -> do release
     needs: docs
+    permissions:
+      contents: write
     if: startswith(github.ref, 'refs/tags/v')
     uses: "./.github/workflows/release.yml"
