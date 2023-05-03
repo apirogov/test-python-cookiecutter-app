@@ -79,6 +79,7 @@ jobs:
   docs:
     # build + deploy documentation for the primary branches
     needs: [test, test-build-docs]
+    permissions: write-all
     if: |
       ${{
         github.event_name == 'push' && (
@@ -88,4 +89,3 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: ./.github/actions/build-deploy-docs
-      permissions: write-all
