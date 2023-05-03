@@ -1,18 +1,12 @@
-# Run linters and tests for secondary branches and PRs.
+# Automatically perform all QA tasks - run linters, tests, etc.
 name: Tests
 
 on:
   push:
-    branches-ignore:
-      # to prevent from running twice (see ci.yml),
-      # we exclude them here:
-      - "main"
-      - "dev"
   pull_request:
   workflow_call:
 
 jobs:
-
   lint:
     runs-on: ubuntu-latest
     steps:

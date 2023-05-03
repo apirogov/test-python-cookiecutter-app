@@ -2,6 +2,15 @@
 name: Docs
 
 on:
+  # deploy docs for main and dev branches automatically
+  # if the test pipeline successfully completed
+  workflow_run:
+    workflows: [Tests]
+    types: [completed]
+    branches: ["main", "dev"]
+
+  # allow to actively call this workflow from other places
+  # (used for tag-triggered releases)
   workflow_call:
     inputs:
       version:
@@ -13,7 +22,7 @@ on:
         default: "main"
 
 jobs:
-  build-docs:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions: write-all
 
