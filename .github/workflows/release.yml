@@ -1,7 +1,6 @@
 name: Release
-
 on:
-  workflow_call:
+  workflow_call:  # called from ci.yml
     inputs:
       to_github:
         description: "Create a Github Release (needs permissions.contents.write)"
@@ -35,6 +34,8 @@ jobs:
     if: inputs.to_pypi || inputs.to_test_pypi
     name: Publish to PyPI (and/or compatible repositories)
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # for "trusted publishing" protocol
     steps:
       - uses: actions/checkout@v3
 
@@ -54,12 +55,17 @@ jobs:
         id: mint
         uses: tschm/token-mint-action@v1.0.1
 
-      - name: Publish to Test-PyPI
-        if: inputs.to_test_pypi
-        run: |
-          poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          # poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
-          poetry publish -r test-pypi -u __token__ -p '${{ steps.mint.outputs.api-token }}'
+      - name: Publish package to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+      # - name: Publish to Test-PyPI
+      #   if: inputs.to_test_pypi
+      #   run: |
+      #     poetry config repositories.test-pypi https://test.pypi.org/legacy/
+      #     # poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
+      #     poetry publish -r test-pypi -u __token__ -p '${{ steps.mint.outputs.api-token }}'
 
       - name: Publish to PyPI
         if: inputs.to_pypi

@@ -129,6 +129,7 @@ jobs:
     needs: docs
     permissions:
       contents: write
+      id-token: write
     if: startswith(github.ref, 'refs/tags/v')
     uses: "./.github/workflows/release.yml"
     with:
