@@ -112,14 +112,17 @@ jobs:
           echo "Found existing gh-pages branch."
         else
           echo "Creating new gh-pages branch and initializing mike."
-          git fetch origin ${{ inputs.latest }}
-          git checkout ${{ inputs.latest }}
-          poetry run mike deploy -u ${{ inputs.latest }} latest
+          poetry run mike deploy -u ${{ github.ref_name }} latest
           poetry run mike set-default latest
         fi
 
     - name: Generate and deploy documentation
-      run: poetry run mike deploy -u --push ${{ github.ref_name }}
+      run: |
+        SET_LATEST=""
+        if [[ "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+*$ ]]; then
+          SET_LATEST="latest"
+        fi
+        poetry run mike deploy -u --push $SET_LATEST
 
   publish:
     # if a version tag is pushed + tests + docs completed -> do release
