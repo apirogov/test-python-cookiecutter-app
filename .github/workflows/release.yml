@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       to_github:
-        description: "Create a Github Release"
+        description: "Create a Github Release (needs permissions.contents.write)"
         type: boolean
         default: true
 
@@ -24,6 +24,8 @@ jobs:
     if: inputs.to_github
     name: Create a Github Release
     runs-on: ubuntu-latest
+    permissions:
+        contents: write
     steps:
       - uses: actions/checkout@v3
       - uses: softprops/action-gh-release@v1

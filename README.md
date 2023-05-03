@@ -3,7 +3,7 @@
 ![Docs](https://img.shields.io/badge/read-docs-success)
 ](https://apirogov.github.io/test-python-cookiecutter-app)
 [
-![Tests](https://img.shields.io/github/actions/workflow/status/apirogov/test-python-cookiecutter-app/tests.yml?branch=main&label=tests)
+![CI](https://img.shields.io/github/actions/workflow/status/apirogov/test-python-cookiecutter-app/ci.yml?branch=main&label=ci)
 ](https://github.com/apirogov/test-python-cookiecutter-app/actions/workflows/tests.yml)
 [
 ![Test Coverage](https://apirogov.github.io/test-python-cookiecutter-app/main/coverage_badge.svg)
