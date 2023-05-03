@@ -131,3 +131,5 @@ jobs:
       contents: write
     if: startswith(github.ref, 'refs/tags/v')
     uses: "./.github/workflows/release.yml"
+    with:
+      to_test_pypi: true

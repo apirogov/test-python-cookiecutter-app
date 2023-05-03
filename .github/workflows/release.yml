@@ -8,15 +8,16 @@ on:
         type: boolean
         default: true
 
+      to_test_pypi:
+        description: "Publish to Test-PyPI (needs secrets.TEST_PYPI_TOKEN)"
+        type: boolean
+        default: false
+
       to_pypi:
         description: "Publish to PyPI (needs secrets.PYPI_TOKEN)"
         type: boolean
         default: false
 
-      to_test_pypi:
-        description: "Publish to Test-PyPI (needs secrets.TEST_PYPI_TOKEN)"
-        type: boolean
-        default: false
 
 jobs:
 
@@ -49,12 +50,16 @@ jobs:
         run: |
           poetry build
 
+      - name: Mint token
+        id: mint
+        uses: tschm/token-mint-action@v1.0.1
+
       - name: Publish to Test-PyPI
         if: inputs.to_test_pypi
         run: |
           poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
-          poetry publish -r test-pypi
+          # poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
+          poetry publish -r test-pypi -u __token__ -p '${{ steps.mint.outputs.api-token }}'
 
       - name: Publish to PyPI
         if: inputs.to_pypi
