@@ -10,11 +10,11 @@
     "audience": [
         {
             "@type": "Audience",
-            "audienceType": "Developers"
+            "audienceType": "Science/Research"
         },
         {
             "@type": "Audience",
-            "audienceType": "Science/Research"
+            "audienceType": "Developers"
         }
     ],
     "author": [
@@ -77,5 +77,5 @@
         "name": "test-python-cookiecutter-app-cli",
         "runtimePlatform": "Python 3"
     },
-    "version": "0.1.0"
+    "version": "0.1.1"
 }

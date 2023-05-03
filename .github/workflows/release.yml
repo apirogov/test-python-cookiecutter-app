@@ -1,4 +1,6 @@
 name: Release
+# Release a new version to different locations in suitable ways
+
 on:
   workflow_call:  # called from ci.yml
     inputs:
@@ -8,12 +10,12 @@ on:
         default: true
 
       to_test_pypi:
-        description: "Publish to Test-PyPI (needs secrets.TEST_PYPI_TOKEN)"
+        description: "Publish to Test-PyPI (needs permissions.id-token.write)"
         type: boolean
         default: false
 
       to_pypi:
-        description: "Publish to PyPI (needs secrets.PYPI_TOKEN)"
+        description: "Publish to PyPI (needs permissions.id-token.write)"
         type: boolean
         default: false
 
@@ -22,10 +24,10 @@ jobs:
 
   github:
     if: inputs.to_github
-    name: Create a Github Release
+    name: Create a Github Release (repository snapshot)
     runs-on: ubuntu-latest
     permissions:
-        contents: write
+        contents: write  # needed for creating a GH Release
     steps:
       - uses: actions/checkout@v3
       - uses: softprops/action-gh-release@v1
@@ -35,7 +37,7 @@ jobs:
     name: Publish to PyPI (and/or compatible repositories)
     runs-on: ubuntu-latest
     permissions:
-      id-token: write  # for "trusted publishing" protocol
+      id-token: write  # needed for "trusted publishing" protocol
     steps:
       - uses: actions/checkout@v3
 
@@ -47,28 +49,15 @@ jobs:
           python-version: "3.10"
           cache: "poetry"
 
-      - name: Build Python package
-        run: |
-          poetry build
-
-      - name: Mint token
-        id: mint
-        uses: tschm/token-mint-action@v1.0.1
+      - name: Build the distribution package
+        run: poetry build
 
       - name: Publish package to TestPyPI
+        if: inputs.to_test_pypi
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
 
-      # - name: Publish to Test-PyPI
-      #   if: inputs.to_test_pypi
-      #   run: |
-      #     poetry config repositories.test-pypi https://test.pypi.org/legacy/
-      #     # poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
-      #     poetry publish -r test-pypi -u __token__ -p '${{ steps.mint.outputs.api-token }}'
-
-      - name: Publish to PyPI
+      - name: Publish package to PyPI
         if: inputs.to_pypi
-        run: |
-          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          poetry publish
+        uses: pypa/gh-action-pypi-publish@release/v1
