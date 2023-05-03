@@ -1,8 +1,11 @@
-# Automatically perform all QA tasks - run linters, tests, etc.
-name: Tests
+name: CI
+# Perform all QA tasks - run linters, tests, etc.
+# On success, build and deploy documentation
 
 on:
   push:
+    branches: ["*"]
+    tags: ["v*.*.*"]
   pull_request:
   workflow_call:
 
@@ -77,16 +80,53 @@ jobs:
           poetry run poe test
 
   docs:
-    # build + deploy documentation for the primary branches
+    # build + deploy documentation for the primary branches + release tags
     needs: [test, test-build-docs]
     runs-on: ubuntu-latest
     permissions: write-all
     if: |
       ${{
         github.event_name == 'push' && (
-          github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+          startswith(github.ref, 'refs/heads/') ||
+          startswith(github.ref, 'refs/tags/v')
         )
       }}
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/build-deploy-docs
+    - name: Install poetry
+      run: pipx install poetry
+    - uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        cache: "poetry"
+
+    - name: Install project with mkdocs and plugins
+      run: poetry install --with docs
+
+    - name: Configure Git user (Github Actions Bot)
+      run: |
+        git config --local user.name "github-actions[bot]"
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - name: Check out or initialize the gh-pages branch
+      run: |
+        if git fetch origin gh-pages:gh-pages
+        then
+          echo "Found existing gh-pages branch."
+        else
+          echo "Creating new gh-pages branch and initializing mike."
+          git fetch origin ${{ inputs.latest }}
+          git checkout ${{ inputs.latest }}
+          poetry run mike deploy -u ${{ inputs.latest }} latest
+          poetry run mike set-default latest
+        fi
+
+    - name: Generate and deploy documentation
+      run: poetry run mike deploy -u --push ${{ github.ref_name }}
+
+  publish:
+    # run publishing workflow when a new version tag is pushed
+    # and tests + docs completed successfully
+    needs: docs
+    if: startswith(github.ref, 'refs/tags/v')
+    uses: "./.github/workflows/release.yml"

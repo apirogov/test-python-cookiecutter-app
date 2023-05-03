@@ -1,0 +1,62 @@
+name: Release
+
+env:
+
+on:
+  workflow_call:
+    inputs:
+      to_github:
+        description: "Create a Github Release"
+        type: boolean
+        default: true
+
+      to_pypi:
+        description: "Publish to PyPI (needs secrets.PYPI_TOKEN)"
+        type: boolean
+        default: false
+
+      to_test_pypi:
+        description: "Publish to Test-PyPI (needs secrets.TEST_PYPI_TOKEN)"
+        type: boolean
+        default: false
+
+jobs:
+
+  github:
+    if: inputs.to_github
+    name: Create a Github Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: softprops/action-gh-release@v1
+
+  pypi:
+    name: Publish to PyPI (and/or compatible repositories)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "poetry"
+
+      - name: Build Python package
+        run: |
+          poetry build
+
+      - name: Publish to Test-PyPI
+        if: inputs.to_test_pypi
+        run: |
+          poetry config repositories.test-pypi https://test.pypi.org/legacy/
+          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
+          poetry publish -r test-pypi
+
+      - name: Publish to PyPI
+        if: inputs.to_pypi
+        run: |
+          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+          poetry publish
