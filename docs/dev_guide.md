@@ -1,12 +1,9 @@
-# Development Guide
+# Developer Guide
 
-In this guide targeting developers, maintainers and other technical contributors
-we provide information on how to work with this repository.
+This guide is targeting mainly developers, maintainers and other technical contributors
+and provides more information on how to work with this repository.
 
 ## Overview
-
-Let us take a brief look at the body and soul of the repository -
-various files, and the tools which use or create them.
 
 ### Repository Structure
 
@@ -72,12 +69,7 @@ Metadata best practices for FAIR software are implemented using:
 * `reuse` to check [REUSE-compliance](https://reuse.software/spec/) (granular copyright and license metadata)
 * `licensecheck` to scan for possible license incompatibilities in the dependencies
 
-## Repository Manual
-
-In this section we provide more details on the most important design aspects of the
-generated project repository and how it is intended to be used.
-
-### Basics
+## Basics
 
 The project
 
@@ -95,9 +87,9 @@ file.
 In this project, `pyproject.toml` is the first place that should be checked
 when looking for the configuration of some development tool.
 
-#### Package Management
+### Configuration
 
-The main tool needed to manage the project is [Poetry](https://python-poetry.org).
+The main tool needed to manage and configure the project is [Poetry](https://python-poetry.org).
 
 **Please follow its setup documentation to install it correctly.** Poetry should **not**
 be installed with `pip` like other Python tools.
@@ -119,7 +111,7 @@ do **not need** to set up or know anything about poetry.
 Note that if you use `poetry shell` and the project is installed with `poetry install`,
 in the following you do not have to prepend `poetry run` to commands you will see below.
 
-#### Task Runner
+### Task Runner
 
 It is a good practice to have a common way for launching different project-related tasks.
 It removes the need of remembering flags for various tools, and avoids duplication
@@ -134,7 +126,20 @@ The tasks are defined in `pyproject.toml` and can be launched using:
 poetry run poe TASK_NAME
 ```
 
-#### Quality Control
+### CI Workflows
+
+The project contains CI workflows for both GitHub and GitLab.
+
+The main CI pipeline runs on each new pushed commit and will
+
+1. Run all configured code analysis tools,
+2. Run code tests with multiple versions of Python,
+3. build and deploy the online project documentation website, and
+4. *if a new version tag was pushed,* launch the release workflow
+
+## Quality Control
+
+### Static Analysis
 
 Except for code testing, most tools for quality control are added to the project as
 [`pre-commit`](https://pre-commit.com/) *hooks*. The `pre-commit` tool takes care of
@@ -189,11 +194,11 @@ to integrate `pytest` with
 [`coverage`](https://coverage.readthedocs.io/en/latest/), which
 collects and reports test coverage information.
 
-In addition to writing regular unit tests with `pytest`, *take a look* at
+In addition to writing regular unit tests with `pytest`, consider using
 [hypothesis](https://hypothesis.readthedocs.io/en/latest/index.html),
-which integrates nicely with `pytest` and implements property-based testing - which
+which integrates nicely with `pytest` and implements *property-based testing* - which
 involves automatic generation of randomized inputs for test cases. This can help to find
-bugs for edge cases that are easy to overlook in ad-hoc manual tests.
+bugs often found for various edge cases that are easy to overlook in ad-hoc manual tests.
 Such randomized tests can be a good addition to hand-crafted tests and inputs.
 
 To run all tests, either invoke `pytest` directly, or use the provided task:
@@ -202,7 +207,7 @@ To run all tests, either invoke `pytest` directly, or use the provided task:
 poetry run poe test
 ```
 
-### Documentation
+## Documentation
 
 The project uses [`mkdocs`](https://www.mkdocs.org/) with the popular and excellent
 [`mkdocs-material`](https://squidfunk.github.io/mkdocs-material/)
@@ -228,7 +233,7 @@ To make this both possible as well as convenient, this project uses
 [`mike`](https://github.com/jimporter/mike) to generate and manage the `mkdocs`
 **documentation for different versions** of the software.
 
-#### Building the documentation
+### Online Documentation
 
 To avoid dependence on additional services such as [readthedocs](https://readthedocs.org/),
 the project website is deployed using [GitHub Pages](https://pages.github.com/).
@@ -236,6 +241,8 @@ the project website is deployed using [GitHub Pages](https://pages.github.com/).
 The provided CI pipeline automatically generates the documentation for the latest
 development version (i.e., current state of the `main` branch) as well as every released
 version (i.e., marked by a version tag `vX.Y.Z`).
+
+### Offline Documentation
 
 You can manually generate a local and fully offline copy of the documentation, which
 can be useful for e.g. previewing the results during active work on the documentation:
@@ -248,22 +255,11 @@ poetry run poe docs
 Once the documentation site is built, run `mkdocs serve` and
 open `https://localhost:8000` in your browser to see the local copy of the website.
 
-### CI Pipelines
-
-The project contains CI pipeline scripts for both GitHub and GitLab.
-
-The CI pipeline runs on each new pushed commit and will
-
-1. Run all the configured `pre-commit` hooks,
-2. Run the code tests with multiple versions of Python,
-3. build/update the online project documentation website, and
-4. if a new version tag was pushed, launch the release workflow
-
-### Releases
+## Releases
 
 From time to time the project is ready for a new **release** for users.
 
-#### Releasing a New Version
+### Creating a New Release
 
 Before releasing a new version, push the commit the new release should be based on
 to the upstream repository, and make sure that:
@@ -284,7 +280,9 @@ If this is the case, proceed with the release by:
 The pushed version tag will trigger a pipeline that will:
 
 * build and deploy the documentation website for the specific version
-* publish the package to enabled targets (such as PyPI)
+* publish the package to enabled targets (see below)
+
+### Release Targets
 
 Targets for releases can be enabled or disabled in `.github/workflows/ci.yml` and
 configured by adapting the corresponding actions in `.github/workflows/releases.yml`.
