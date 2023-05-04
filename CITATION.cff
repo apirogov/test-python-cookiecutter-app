@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+type: software
+message: If you use this software, please cite it using this metadata.
+
+title: "test python cookiecutter app"
+version: "0.1.3"
+abstract: "TODO - A meaningful one-sentence description."
+repository-code: "https://github.com/apirogov/test-python-cookiecutter-app"
+license: "MIT"
+keywords: [
+    "TODO",
+    "list",
+    "keywords",
+    "separated",
+    "by",
+    "spaces"
+]
+
+authors:
+  - family-names: "Pirogov"
+    given-names: "Anton"
+    email: "a.pirogov@fz-juelich.de"
+    orcid: "https://orcid.org/0000-0002-5077-7497"
+    affiliation: "Forschungszentrum Jülich GmbH - Institute for Materials Data Science and Informatics (IAS9)"
+
